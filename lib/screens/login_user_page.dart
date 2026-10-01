@@ -88,12 +88,11 @@ class _LoginPageState
                   MainAxisSize.min,
 
               children: [
-
                 const Icon(
-                  Icons.lock,
+                  Icons.lock_outline,
                   size: 65,
                   color:
-                      Color(0xFFC9A227),
+                      Color.fromARGB(255, 112, 6, 241),
                 ),
 
                 const SizedBox(
@@ -105,10 +104,12 @@ class _LoginPageState
 
                   style: TextStyle(
                     fontSize: 27,
-                    fontWeight:
-                        FontWeight.bold,
+                    fontWeight: 
+                        FontWeight.w700,
+                    fontStyle: 
+                        FontStyle.italic,
                     color:
-                        Color(0xFF08245C),
+                    Color.fromARGB(255, 112, 6, 241),
                   ),
                 ),
 
@@ -172,7 +173,12 @@ class _LoginPageState
 
                   child: TextButton(
 
-                    onPressed: () {},
+                    onPressed: () {
+                        Navigator.pushNamed(
+                          context,
+                          '/recuperar',
+                        );
+                    },
 
                     child: const Text(
                       '¿Olvidaste tu contraseña?',
