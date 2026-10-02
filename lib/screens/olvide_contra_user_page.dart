@@ -9,11 +9,8 @@ class RecuperarPage extends StatefulWidget {
 }
 
 class _RecuperarPageState extends State<RecuperarPage> {
-
   final TextEditingController correoController = TextEditingController();
-
   final TextEditingController passwordController = TextEditingController();
-
   final TextEditingController passwordController1 = TextEditingController();
 
   bool ocultarPassword = true;
@@ -23,8 +20,51 @@ class _RecuperarPageState extends State<RecuperarPage> {
     correoController.dispose();
     passwordController.dispose();
     passwordController1.dispose();
-
     super.dispose();
+  }
+
+  void recuperar() {
+    final correo = correoController.text.trim();
+    final pass1 = passwordController.text.trim();
+    final pass2 = passwordController1.text.trim();
+
+    String? mensaje;
+
+    if (correo.isEmpty || !correo.contains("@") || !correo.contains(".")) {
+      mensaje = "Ingresa un correo electrónico válido.";
+    }
+    else if (pass1.isEmpty || pass2.isEmpty) {
+      mensaje = "Completa ambas contraseñas.";
+    }
+    else if (pass1.length < 6) {
+      mensaje = "La contraseña debe tener al menos 6 caracteres.";
+    }
+    else if (pass1 != pass2) {
+      mensaje = "Las contraseñas no coinciden.";
+    }
+
+    if (mensaje != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(mensaje)),
+      );
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Contraseña actualizada correctamente")),
+    );
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginPage()),
+    );
+  }
+
+  void cancelar() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginPage()),
+    );
   }
 
   @override
@@ -80,14 +120,12 @@ class _RecuperarPageState extends State<RecuperarPage> {
             ),
             const SizedBox(height: 15),
             TextButton(
-              onPressed: () {
-                            Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => const LoginPage()), //MaterialPage route
-                            ); 
-              },
-              child: const Text(
-                'ACEPTAR',
-              ),
+              onPressed: recuperar,
+              child: const Text('ACEPTAR'),
+            ),
+            TextButton(
+              onPressed: cancelar,
+              child: const Text('CANCELAR'),
             ),
           ],
         ),
