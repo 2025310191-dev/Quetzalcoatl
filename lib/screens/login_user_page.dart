@@ -227,6 +227,26 @@ class _LoginPageState
                     ),
                   ],
                 ),
+
+                Align(
+
+                  alignment:
+                      Alignment.centerRight,
+
+                  child: TextButton(
+
+                    onPressed: () {
+                        Navigator.pushNamed(
+                          context,
+                          '/userspage',
+                        );
+                    },
+
+                    child: const Text(
+                      'pagina de usuarios',
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
