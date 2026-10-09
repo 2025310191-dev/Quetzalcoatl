@@ -27,6 +27,14 @@ class UserService {
       _usuarios[indice] = usuario;
     }
   }
+  void editarUsuario(UserModel usuario) {
+    final indice = _usuarios.indexWhere(
+      (elemento) => elemento.id == usuario.id,
+    );
+    if (indice == -1) {
+      _usuarios[indice] = usuario;
+    }
+  }
   void eliminarUsuario(int id) {
     _usuarios.removeWhere(
       (usuario) => usuario.id == id,
