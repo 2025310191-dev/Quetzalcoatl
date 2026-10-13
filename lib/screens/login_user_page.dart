@@ -192,8 +192,12 @@ class _LoginPageState
 
                 PrimaryButton(
                   text: 'INGRESAR',
-                  onPressed:
-                      iniciarSesion,
+                  onPressed: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/blog',
+                    );
+                  },
                 ),
 
                 const SizedBox(
