@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../widgets/category_chip.dart';
-import '../models/post_model.dart';
 import '../services/post_services.dart';
 import '../widgets/post_card.dart';
 
