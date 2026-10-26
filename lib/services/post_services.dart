@@ -1,52 +1,27 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import '../models/post_model.dart';
 
 class PostService {
+  static const String baseUrl = 'http://127.0.0.1:8000';
 
-  final List<PostModel> _posts = [
+  Future<List<PostModel>> obtenerPosts() async {
+    final respuesta = await http.get(
+      Uri.parse('$baseUrl/blog'),
+    );
 
-    PostModel(
+    if (respuesta.statusCode != 200) {
+      throw Exception('Error al consultar publicaciones');
+    }
 
-      id: 1,
-      titulo: 'Construyendo aplicaciones en flutter',
-      autor: 'Adriana',
-      categoria: 'Flutter',
-      descripcion: 'iuhiuehiuerh',
-      contenido:  'uihiuduuiwuien',
-      imagen: 'https://picsum.photos/800/400?random=1&#39',
-      fecha: '01 Oct 2026',
+    final List<dynamic> datos = jsonDecode(respuesta.body);
 
-    ),
-
-    PostModel(
-
-      id: 2,
-      titulo: 'Introduccion a la inteligencia artificial',
-      autor: 'Adriana',
-      categoria: 'IA',
-      descripcion: 'Conceptos fundamentales de inteligencia artificial',
-      contenido: 'La inteligencia artificial permite desarrollar sistemas capaces de realizar tareas que requieren razonamiento',
-      imagen: 'https://picsum.photos/800/400?random=2&#39',
-      fecha: '03 Oct 2026',
-
-    ),
-
-    PostModel(
-
-      id: 3,
-      titulo: 'Diseño de interfaces moviles',
-      autor: 'Adriana',
-      categoria: 'Diseño',
-      descripcion: 'Principios para construir interfaces faciles de utilizar',
-      contenido: 'Una buena interfaz debe considerar organizacion, jerarquia visual, accesibilidad',
-      imagen: 'https://picsum.photos/800/400?random=3&#39',
-      fecha: '05 Oct 2026',
-
-    ),
-
-  ];
-
-  List<PostModel> getPosts() {
-    return _posts;
+    return datos
+        .map(
+          (json) => PostModel.fromJson(
+            json as Map<String, dynamic>,
+          ),
+        )
+        .toList();
   }
-
 }

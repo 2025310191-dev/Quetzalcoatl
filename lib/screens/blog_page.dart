@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../widgets/category_chip.dart';
 import '../services/post_services.dart';
 import '../widgets/post_card.dart';
+import '../screens/post_detail_page.dart';
 
 class BlogPage extends StatefulWidget {
   const BlogPage({super.key});
@@ -88,7 +89,12 @@ class _BlogPageState extends State<BlogPage> {
             (post) {
               return PostCard(
                 post: post,
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: ((context) => PostDetailPage(post: post)))
+                  );
+                },
               );
             },
           ),
