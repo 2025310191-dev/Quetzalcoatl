@@ -10,107 +10,63 @@ class PostDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:
-            const Text('Detalle'),
+        title: const Text('Detalle de publicación'),
       ),
-
       body: SingleChildScrollView(
-
         child: Column(
-
-          crossAxisAlignment:
-              CrossAxisAlignment.start,
-
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
-            Image.network(
-
-              post.imagen,
-
-              height: 230,
-
-              width:
-                  double.infinity,
-
-              fit: BoxFit.cover,
-            ),
+            if (post.imagen.isNotEmpty)
+              Image.network(
+                post.imagen,
+                height: 230,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return const SizedBox(
+                    height: 150,
+                    child: Center(
+                      child: Icon(
+                        Icons.image_not_supported,
+                        size: 48,
+                      ),
+                    ),
+                  );
+                },
+              ),
 
             Padding(
-
-              padding:
-                  const EdgeInsets.all(20),
-
+              padding: const EdgeInsets.all(20),
               child: Column(
-
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
-
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
-                  Text(
-                    post.categoria,
-
-                    style:
-                        const TextStyle(
-                      color:
-                          Color(0xFF2196F3),
-
-                      fontWeight:
-                          FontWeight.bold,
+                  if (post.tags.isNotEmpty) ...[
+                    Text(
+                      post.tags,
+                      style: const TextStyle(
+                        color: Color(0xFF2196F3),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-
-                  const SizedBox(
-                    height: 10,
-                  ),
+                    const SizedBox(height: 10),
+                  ],
 
                   Text(
                     post.titulo,
-
-                    style:
-                        const TextStyle(
+                    style: const TextStyle(
                       fontSize: 28,
-
-                      fontWeight:
-                          FontWeight.bold,
-
-                      color:
-                          Color(0xFF08245C),
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF08245C),
                     ),
                   ),
-
-                  const SizedBox(
-                    height: 15,
-                  ),
-
-                  Row(
-                    children: [
-
-                      Text(
-                        post.autor,
-                      ),
-
-                      const SizedBox(
-                        width: 10,
-                      ),
-
-                      Text(
-                        '• ${post.fecha}',
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(
-                    height: 25,
-                  ),
+                  const SizedBox(height: 20),
 
                   Text(
-                    post.contenido,
-
-                    style:
-                        const TextStyle(
+                    post.descripcion.isNotEmpty
+                        ? post.descripcion
+                        : 'Esta publicación no tiene descripción.',
+                    style: const TextStyle(
                       fontSize: 17,
-
                       height: 1.6,
                     ),
                   ),

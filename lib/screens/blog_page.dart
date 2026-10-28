@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../widgets/category_chip.dart';
-import '../services/post_services.dart';
+import '../models/post_model.dart';
+import '../services/post_service.dart';
 import '../widgets/post_card.dart';
-import '../screens/post_detail_page.dart';
+import 'post_detail_page.dart';
 
 class BlogPage extends StatefulWidget {
   const BlogPage({super.key});
@@ -13,92 +13,153 @@ class BlogPage extends StatefulWidget {
 
 class _BlogPageState extends State<BlogPage> {
   final PostService postService = PostService();
+  late Future<List<PostModel>> futurePosts;
+  String nombreUsuario = 'Usuario';
+  bool argumentoLeido = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (!argumentoLeido) {
+      final argumento = ModalRoute.of(context)?.settings.arguments;
+
+      if (argumento is String && argumento.isNotEmpty) {
+        nombreUsuario = argumento;
+      }
+
+      argumentoLeido = true;
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    futurePosts = postService.obtenerPosts();
+  }
+
+  void recargarPosts() {
+    setState(() {
+      futurePosts = postService.obtenerPosts();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final posts = postService.getPosts();
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mi Blog'),
-        centerTitle: false,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Mi Blog'),
+            Text(
+              'Bienvenido, $nombreUsuario',
+              style: const TextStyle(fontSize: 12),
+            ),
+          ],
+        ),
         actions: [
           IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.search),
+            tooltip: 'Actualizar',
+            icon: const Icon(Icons.refresh),
+            onPressed: recargarPosts,
+          ),
+          TextButton.icon(
+            onPressed: () {
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/login',
+                (route) => false,
+              );
+            },
+            icon: const Icon(Icons.logout),
+            label: const Text('Cerrar sesión'),
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          const Text(
-            'Bienvenido',
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              fontStyle: FontStyle.italic,
-              color: Color(0xFF08245C),
-            ),
-          ),
-          const SizedBox(height: 5),
-          const Text(
-            'Descubre nuevas ideas',
-            style: TextStyle(
-              fontSize: 20,
-              color: Color.fromARGB(255, 34, 1, 255),
-            ),
-          ),
-          SizedBox(
-            height: 45,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: [
-                CategoryChip(
-                  text: 'Todos',
-                  icon: Icons.apps,
-                  selected: true,
-                  onTap: () {},
+      body: FutureBuilder<List<PostModel>>(
+        future: futurePosts,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          if (snapshot.hasError) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.cloud_off, size: 45),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'No fue posible cargar el blog.',
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '${snapshot.error}',
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton(
+                      onPressed: recargarPosts,
+                      child: const Text('Reintentar'),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 10),
-                CategoryChip(
-                  text: 'Flutter',
-                  icon: Icons.flutter_dash,
-                  selected: false,
-                  onTap: () {},
+              ),
+            );
+          }
+
+          final posts = snapshot.data ?? <PostModel>[];
+
+          if (posts.isEmpty) {
+            return const Center(
+              child: Text('No hay publicaciones registradas.'),
+            );
+          }
+
+          return ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              const Text(
+                'Bienvenido',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF08245C),
                 ),
-                const SizedBox(width: 10),
-                CategoryChip(
-                  text: 'IA',
-                  icon: Icons.smart_toy,
-                  selected: false,
-                  onTap: () {},
+              ),
+              const SizedBox(height: 5),
+              const Text(
+                'Descubre nuevas ideas',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey,
                 ),
-                const SizedBox(width: 10),
-                CategoryChip(
-                  text: 'Diseño',
-                  icon: Icons.brush,
-                  selected: false,
-                  onTap: () {},
+              ),
+              const SizedBox(height: 20),
+              ...posts.map(
+                (post) => PostCard(
+                  post: post,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (context) => PostDetailPage(post: post),
+                      ),
+                    );
+                  },
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-          ...posts.map(
-            (post) {
-              return PostCard(
-                post: post,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: ((context) => PostDetailPage(post: post)))
-                  );
-                },
-              );
-            },
-          ),
-        ],
+              ),
+            ],
+          );
+        },
       ),
     );
   }

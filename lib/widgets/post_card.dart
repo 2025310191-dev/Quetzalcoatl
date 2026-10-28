@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../models/post_model.dart';
-
 class PostCard extends StatelessWidget {
   final PostModel post;
   final VoidCallback onTap;
@@ -16,35 +15,51 @@ class PostCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 18),
       elevation: 4,
+      clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
-      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Image.network(
-              post.imagen,
-              height: 180,
-              width: double.infinity,
-              fit: BoxFit.cover,
-            ),
+            if (post.imagen.isNotEmpty)
+              Image.network(
+                post.imagen,
+                height: 180,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return const SizedBox(
+                    height: 110,
+                    child: Center(
+                      child: Icon(
+                        Icons.image_not_supported,
+                        size: 40,
+                      ),
+                    ),
+                  );
+                },
+              ),
+
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    post.categoria,
-                    style: const TextStyle(
-                      color: Color(0xFF2196F3),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
+                  if (post.tags.isNotEmpty) ...[
+                    Text(
+                      post.tags,
+                      style: const TextStyle(
+                        color: Color(0xFF2196F3),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
+                    const SizedBox(height: 8),
+                  ],
+
                   Text(
                     post.titulo,
                     style: const TextStyle(
@@ -54,40 +69,23 @@ class PostCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
+
                   Text(
                     post.descripcion,
-                    maxLines: 2,
+                    maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 14,
                       color: Colors.grey,
                     ),
                   ),
-                  const SizedBox(height: 15),
-                  Row(
+                  const SizedBox(height: 12),
+
+                  const Row(
                     children: [
-                      Icon(
-                        Icons.person_outline,
-                        size: 20,
-                        color: Colors.grey.shade700,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        post.autor,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      const Spacer(),
-                      Text(
-                        post.fecha,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey,
-                        ),
-                      ),
+                      Icon(Icons.article_outlined, size: 18),
+                      SizedBox(width: 5),
+                      Text('Leer publicación'),
                     ],
                   ),
                 ],

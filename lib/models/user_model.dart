@@ -13,25 +13,25 @@ class UserModel {
     this.password,
     this.direccion,
     this.tipoUsuario = 1,
-    });
-    
-    factory UserModel.fromJson(Map<String, dynamic> json) {
-      return UserModel(
-        id: json['id_usr'] as int,
-        nombre: json['nom_usr'] as String,
-        correo: json['mail'] as String,
-        direccion: json['dir_usr'] as String?,
-        tipoUsuario: json['tip_usu'] as int? ?? 1,
-        );
-        }
-        
-        Map<String, dynamic> toJsonCrear() {
-          return {
-            'nom_usr': nombre,
-            'mail': correo,
-            'password': password,
-            'dir_usr': direccion,
-            'tip_usu': tipoUsuario,
-            };
-            }
+  });
+
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    return UserModel(
+      id: json['id_usr'] as int,
+      nombre: json['nom_usr'] as String,
+      correo: json['mail'] as String,
+      direccion: json['dir_usr'] as String?,
+      tipoUsuario: json['tip_usu'] as int? ?? 1,
+    );
+  }
+
+  Map<String, dynamic> toJsonCrear() {
+    return {
+      'nom_usr': nombre,
+      'mail': correo,
+      'password': password,
+      'dir_usr': direccion,
+      'tip_usu': tipoUsuario,
+    };
+  }
 }
