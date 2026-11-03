@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'screens/add_blog_page.dart';
 import 'screens/blog_page.dart';
 import 'screens/login_user_page.dart';
+import 'screens/profile_page.dart';
 import 'screens/register_user_page.dart';
 import 'screens/users_page.dart';
 
@@ -23,6 +25,8 @@ class LoginApp extends StatelessWidget {
         '/register': (context) => const RegisterPage(),
         '/users': (context) => const UsersPage(),
         '/blog': (context) => const BlogPage(),
+        '/add-blog': (context) => const AddBlogPage(),
+        '/profile': (context) => const ProfilePage(),
       },
     );
   }

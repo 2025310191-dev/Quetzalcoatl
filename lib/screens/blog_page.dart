@@ -3,6 +3,7 @@ import '../models/post_model.dart';
 import '../services/post_service.dart';
 import '../widgets/post_card.dart';
 import 'post_detail_page.dart';
+import '../widgets/admin_drawer.dart';
 
 class BlogPage extends StatefulWidget {
   const BlogPage({super.key});
@@ -15,6 +16,11 @@ class _BlogPageState extends State<BlogPage> {
   final PostService postService = PostService();
   late Future<List<PostModel>> futurePosts;
   String nombreUsuario = 'Usuario';
+  Map<String, dynamic> usuarioActual = {
+    'nom_usr': 'Usuario',
+    'mail': '',
+    'tip_usu': 2
+  };
   bool argumentoLeido = false;
 
   @override
@@ -24,8 +30,12 @@ class _BlogPageState extends State<BlogPage> {
     if (!argumentoLeido) {
       final argumento = ModalRoute.of(context)?.settings.arguments;
 
-      if (argumento is String && argumento.isNotEmpty) {
+      if (argumento is Map<String, dynamic>) {
+        usuarioActual = Map<String, dynamic>.from(argumento);
+        nombreUsuario = usuarioActual['nom_usr']?.toString() ?? 'Usuario';
+      } else if (argumento is String && argumento.isNotEmpty) {
         nombreUsuario = argumento;
+        usuarioActual = {'nom_usr': nombreUsuario, 'mail': '', 'tip_usu': 2};
       }
 
       argumentoLeido = true;
@@ -61,23 +71,50 @@ class _BlogPageState extends State<BlogPage> {
         ),
         actions: [
           IconButton(
-            tooltip: 'Actualizar',
+            tooltip: 'Actualizar publicaciones',
             icon: const Icon(Icons.refresh),
             onPressed: recargarPosts,
           ),
-          TextButton.icon(
+          IconButton(
+            tooltip: 'Cerrar sesión',
+            icon: const Icon(Icons.logout),
             onPressed: () {
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                '/login',
-                (route) => false,
+              showDialog(
+                context: context,
+                builder: (dialogContext) => AlertDialog(
+                  title: const Text('Cerrar sesión'),
+                  content: const Text(
+                    '¿Estás seguro de que deseas cerrar sesión?',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(dialogContext);
+                      },
+                      child: const Text('Cancelar'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(dialogContext);
+
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          '/login',
+                          (route) => false,
+                        );
+                      },
+                      child: const Text('Cerrar sesión'),
+                    ),
+                  ],
+                ),
               );
             },
-            icon: const Icon(Icons.logout),
-            label: const Text('Cerrar sesión'),
           ),
         ],
       ),
+      drawer: (usuarioActual['tip_usu'] as num? ?? 2).toInt() == 1
+          ? AdminDrawer(usuario: usuarioActual, rutaActual: '/blog')
+          : null,
       body: FutureBuilder<List<PostModel>>(
         future: futurePosts,
         builder: (context, snapshot) {
