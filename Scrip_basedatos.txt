@@ -1,0 +1,155 @@
+create database flora_fauna_blog;
+use flora_fauna_blog;
+
+CREATE TABLE `blog` (
+  `id_blog` int(11) NOT NULL AUTO_INCREMENT,
+  `titulo` varchar(200) NOT NULL,
+  `descripcion` text NOT NULL,
+  `img` varchar(500) DEFAULT NULL,
+  `tags` varchar(255) DEFAULT NULL,
+  `categoria` enum('flora','fauna') NOT NULL,
+  `latitud` decimal(10,8) DEFAULT NULL,
+  `longitud` decimal(11,8) DEFAULT NULL,
+  `likes` int(11) DEFAULT 0,
+  `dislikes` int(11) DEFAULT 0,
+  `visualizaciones` int(11) DEFAULT 0,
+  `estatus` int(11) DEFAULT 1,
+  `fecha_publicacion` datetime DEFAULT current_timestamp(),
+  `usr_id` int(11) NOT NULL,
+  PRIMARY KEY (`id_blog`),
+  KEY `idx_blog_usuario` (`usr_id`),
+  CONSTRAINT `blog_ibfk_1` FOREIGN KEY (`usr_id`) REFERENCES `usuario` (`id_usr`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `carrito` (
+  `id_carrito` int(11) NOT NULL AUTO_INCREMENT,
+  `usuario_id` int(11) NOT NULL,
+  `fecha_creacion` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id_carrito`),
+  UNIQUE KEY `uq_carrito_usuario` (`usuario_id`),
+  CONSTRAINT `carrito_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuario` (`id_usr`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `carrito_detalle` (
+  `id_detalle` int(11) NOT NULL AUTO_INCREMENT,
+  `carrito_id` int(11) NOT NULL,
+  `producto_id` int(11) NOT NULL,
+  `cantidad` int(11) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id_detalle`),
+  UNIQUE KEY `uq_carrito_producto` (`carrito_id`,`producto_id`),
+  KEY `producto_id` (`producto_id`),
+  CONSTRAINT `carrito_detalle_ibfk_1` FOREIGN KEY (`carrito_id`) REFERENCES `carrito` (`id_carrito`) ON DELETE CASCADE,
+  CONSTRAINT `carrito_detalle_ibfk_2` FOREIGN KEY (`producto_id`) REFERENCES `producto` (`id_producto`) ON DELETE CASCADE,
+  CONSTRAINT `chk_carrito_cantidad` CHECK (`cantidad` > 0)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `comentario_reacciones` (
+  `id_reaccion` int(11) NOT NULL AUTO_INCREMENT,
+  `comentario_id` int(11) NOT NULL,
+  `usuario_id` int(11) NOT NULL,
+  `emoji` varchar(30) DEFAULT NULL,
+  `fecha` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id_reaccion`),
+  UNIQUE KEY `uq_comentario_reaccion_usuario` (`comentario_id`,`usuario_id`),
+  KEY `usuario_id` (`usuario_id`),
+  CONSTRAINT `comentario_reacciones_ibfk_1` FOREIGN KEY (`comentario_id`) REFERENCES `comentarios` (`id_con`) ON DELETE CASCADE,
+  CONSTRAINT `comentario_reacciones_ibfk_2` FOREIGN KEY (`usuario_id`) REFERENCES `usuario` (`id_usr`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `comentarios` (
+  `id_con` int(11) NOT NULL AUTO_INCREMENT,
+  `comentario` text NOT NULL,
+  `fecha` datetime DEFAULT current_timestamp(),
+  `estatus` int(11) DEFAULT 1,
+  `usr_id` int(11) NOT NULL,
+  `blog_id` int(11) NOT NULL,
+  PRIMARY KEY (`id_con`),
+  KEY `usr_id` (`usr_id`),
+  KEY `idx_comentario_blog` (`blog_id`),
+  CONSTRAINT `comentarios_ibfk_1` FOREIGN KEY (`usr_id`) REFERENCES `usuario` (`id_usr`) ON DELETE CASCADE,
+  CONSTRAINT `comentarios_ibfk_2` FOREIGN KEY (`blog_id`) REFERENCES `blog` (`id_blog`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `historial_puntos` (
+  `id_historial` int(11) NOT NULL AUTO_INCREMENT,
+  `usuario_id` int(11) NOT NULL,
+  `puntos` int(11) NOT NULL,
+  `accion` varchar(255) DEFAULT NULL,
+  `fecha` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id_historial`),
+  KEY `usuario_id` (`usuario_id`),
+  CONSTRAINT `historial_puntos_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuario` (`id_usr`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `pedido` (
+  `id_pedido` int(11) NOT NULL AUTO_INCREMENT,
+  `usuario_id` int(11) NOT NULL,
+  `total` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `estado` enum('pendiente','pagado','enviado','entregado','cancelado') NOT NULL DEFAULT 'pendiente',
+  `fecha` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id_pedido`),
+  KEY `idx_pedido_usuario` (`usuario_id`),
+  CONSTRAINT `pedido_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuario` (`id_usr`),
+  CONSTRAINT `chk_pedido_total` CHECK (`total` >= 0)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `pedido_detalle` (
+  `id_detalle` int(11) NOT NULL AUTO_INCREMENT,
+  `pedido_id` int(11) NOT NULL,
+  `producto_id` int(11) NOT NULL,
+  `cantidad` int(11) NOT NULL,
+  `precio_unitario` decimal(10,2) NOT NULL,
+  PRIMARY KEY (`id_detalle`),
+  UNIQUE KEY `uq_pedido_producto` (`pedido_id`,`producto_id`),
+  KEY `producto_id` (`producto_id`),
+  CONSTRAINT `pedido_detalle_ibfk_1` FOREIGN KEY (`pedido_id`) REFERENCES `pedido` (`id_pedido`) ON DELETE CASCADE,
+  CONSTRAINT `pedido_detalle_ibfk_2` FOREIGN KEY (`producto_id`) REFERENCES `producto` (`id_producto`),
+  CONSTRAINT `chk_pedido_detalle_cantidad` CHECK (`cantidad` > 0),
+  CONSTRAINT `chk_pedido_detalle_precio` CHECK (`precio_unitario` > 0)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `producto` (
+  `id_producto` int(11) NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(150) NOT NULL,
+  `descripcion` text DEFAULT NULL,
+  `precio` decimal(10,2) NOT NULL,
+  `stock` int(11) NOT NULL DEFAULT 0,
+  `imagen` varchar(500) DEFAULT NULL,
+  `categoria` varchar(100) NOT NULL,
+  `estatus` int(11) NOT NULL DEFAULT 1,
+  `fecha_creacion` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id_producto`),
+  KEY `idx_producto_categoria` (`categoria`),
+  CONSTRAINT `chk_producto_precio` CHECK (`precio` > 0),
+  CONSTRAINT `chk_producto_stock` CHECK (`stock` >= 0),
+  CONSTRAINT `chk_producto_estatus` CHECK (`estatus` in (0,1))
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `reacciones_blog` (
+  `id_reaccion` int(11) NOT NULL AUTO_INCREMENT,
+  `usuario_id` int(11) NOT NULL,
+  `blog_id` int(11) NOT NULL,
+  `tipo` enum('like','dislike') NOT NULL,
+  `fecha` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id_reaccion`),
+  UNIQUE KEY `usuario_id` (`usuario_id`,`blog_id`),
+  KEY `idx_reaccion_blog` (`blog_id`),
+  CONSTRAINT `reacciones_blog_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuario` (`id_usr`) ON DELETE CASCADE,
+  CONSTRAINT `reacciones_blog_ibfk_2` FOREIGN KEY (`blog_id`) REFERENCES `blog` (`id_blog`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `usuario` (
+  `id_usr` int(11) NOT NULL AUTO_INCREMENT,
+  `nom_usr` varchar(100) NOT NULL,
+  `mail` varchar(150) NOT NULL,
+  `pass` varchar(255) NOT NULL,
+  `foto_perfil` varchar(500) DEFAULT NULL,
+  `dir_usr` varchar(200) DEFAULT NULL,
+  `telefono` varchar(20) DEFAULT NULL,
+  `puntos` int(11) DEFAULT 0,
+  `tip_usu` int(11) NOT NULL DEFAULT 2,
+  `estatus` int(11) DEFAULT 1,
+  `fecha_registro` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id_usr`),
+  UNIQUE KEY `mail` (`mail`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
